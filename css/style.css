@@ -7,6 +7,9 @@
   --font-heading: "Helvetica Neue", "San Francisco Pro", sans-serif;
   --font-body: "PingFang SC", "Microsoft YaHei", sans-serif;
   --transition-smooth: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  --grid-skew-angle: -6deg;
+  --grid-card-gap: 12px;
+  --grid-card-radius: 12px;
 }
 
 * {
@@ -102,20 +105,20 @@ a {
   text-decoration: none;
 }
 
-/* --- 交互动画基类（完全保留） --- */
+/* --- Reveal 动画基类（完全保留） --- */
 .reveal-text {
   opacity: 0;
   transform: translateY(40px);
   transition:
-    opacity var(--transition-smooth),
-    transform var(--transition-smooth);
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal-up {
   opacity: 0;
-  transform: translateY(60px);
+  transform: translateY(40px);
   transition:
-    opacity var(--transition-smooth),
-    transform var(--transition-smooth);
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal-text.active,
 .reveal-up.active {
@@ -166,22 +169,104 @@ a {
   transition-delay: 2.1s;
 }
 
-/* --- Hero 首屏区（完全保留） --- */
+/* --- 核心修改：Hero区域 - 标题文字在网格动画上层，恢复原字体特效 --- */
 .hero-section {
   height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding-bottom: 60px;
+  margin: 0;
+  left: 0;
+  top: 0;
+}
+
+/* 标题内容容器 - 层级高于网格背景 */
+.hero-content {
   position: relative;
+  z-index: 10;
   text-align: center;
 }
+
+/* GridMotion网格动画背景 - 层级在最下层 */
+.grid-motion-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 180%;
+  transform: translate(-50%, -50%) skewY(var(--grid-skew-angle));
+  overflow: hidden;
+  z-index: 0;
+  opacity: 0.6; /* 降低背景透明度，突出文字 */
+}
+
+/* GridMotion滚动轨道 - 一直缓慢线性无限滚动 */
+.grid-motion-track {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--grid-card-gap);
+  width: 100%;
+  animation: gridInfiniteScroll 35s linear infinite;
+}
+
+/* 无限滚动核心动画 - 无缝循环无断层 */
+@keyframes gridInfiniteScroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+/* 网格卡片样式 - 适配图片展示 */
+.grid-motion-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--grid-card-radius);
+  overflow: hidden;
+  min-height: 180px;
+  transition: all 0.3s ease;
+  transform: skewY(calc(-1 * var(--grid-skew-angle)));
+}
+
+/* 卡片内图片样式 */
+.grid-motion-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--grid-card-radius);
+  transition: transform 0.3s ease;
+}
+
+/* 卡片hover效果 */
+.grid-motion-card:hover {
+  transform: skewY(calc(-1 * var(--grid-skew-angle))) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.grid-motion-card:hover img {
+  transform: scale(1.08);
+}
+
+/* 恢复原Hero标题样式 + 逐字动画特效 */
 .hero-title {
   font-size: clamp(4rem, 12vw, 10rem);
   font-weight: 900;
   letter-spacing: -4px;
   line-height: 1;
   margin-bottom: 2rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-title span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px);
   background: linear-gradient(
     180deg,
     #ffffff 0%,
@@ -191,7 +276,16 @@ a {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.hero-title span.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 恢复原Hero副标题样式 + 延迟淡入特效 */
 .hero-subtitle {
   font-size: clamp(2rem, 6vw, 5rem);
   font-weight: 200;
@@ -199,14 +293,27 @@ a {
   line-height: 1;
   font-feature-settings: "liga" 1;
   text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0.3s;
 }
+.hero-subtitle.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 滚动提示样式（完全保留） */
 .scroll-indicator {
-  position: absolute;
-  bottom: 40px;
+  position: relative;
+  z-index: 10;
   font-size: 0.8rem;
   color: var(--text-muted);
   animation: pulse 2s infinite;
   letter-spacing: 2px;
+  margin-top: 60px;
 }
 @keyframes pulse {
   0%,
@@ -336,12 +443,10 @@ a {
   transform: scale(1.02);
 }
 
-/* --- Gallery 作品区（核心修复：导航栏吸顶跟随） --- */
+/* --- Gallery 作品区（完全保留） --- */
 .gallery-section {
   padding: 100px 5%;
-  /* 移除导致sticky失效的overflow-x:hidden，body已全局禁止横向滚动 */
 }
-/* 核心修复：优化sticky吸顶属性，确保下滑时始终固定在顶部 */
 .sticky-top {
   position: sticky;
   top: 0;
@@ -376,9 +481,16 @@ a {
 }
 .gallery-item {
   cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  --desc: attr(data-desc);
+}
+.gallery-item:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* 封面图比例适配（完全保留） */
 .image-wrapper {
   overflow: hidden;
   border-radius: 8px;
@@ -389,6 +501,7 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 .image-wrapper img,
 .image-wrapper video {
@@ -404,6 +517,32 @@ a {
 .gallery-item:hover .image-wrapper video {
   transform: scale(1.03);
 }
+
+.image-wrapper::after {
+  content: var(--desc);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: rgba(5, 0, 0, 0.85);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  word-break: break-word;
+  opacity: 0;
+  transform: translateY(100%);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  z-index: 10;
+}
+.gallery-item:hover .image-wrapper::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .gallery-item:hover .item-info h3 {
   color: #ff3333;
   transition: color var(--transition-smooth);
@@ -534,7 +673,7 @@ a {
   font-size: 0.9rem;
 }
 
-/* --- 模态框样式：适配图片+视频+简历全屏（完全保留） --- */
+/* --- 模态框样式（完全保留） --- */
 .modal {
   display: none;
   position: fixed;
@@ -591,8 +730,23 @@ a {
   margin-bottom: 10px;
 }
 
-/* --- 移动端响应式适配（完全保留） --- */
+/* --- 响应式适配：手机/平板端自动适配（完全保留） --- */
+@media (max-width: 1200px) {
+  .grid-motion-track {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .grid-motion-card {
+    min-height: 160px;
+  }
+}
+
 @media (max-width: 768px) {
+  .grid-motion-track {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grid-motion-card {
+    min-height: 140px;
+  }
   .hero-subtitle {
     letter-spacing: 6px;
   }
@@ -651,5 +805,14 @@ a {
   .modal-content {
     width: 95%;
     margin: 5% auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-motion-track {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-motion-card {
+    min-height: 120px;
   }
 }

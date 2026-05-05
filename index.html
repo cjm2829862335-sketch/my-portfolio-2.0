@@ -7,11 +7,18 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+    <!-- 首页Hero区域：恢复原标题文字，网格动画作为背景 -->
     <section id="hero" class="hero-section">
+      <!-- 网格动画背景 -->
+      <div class="grid-motion-wrapper">
+        <div class="grid-motion-track" id="gridMotionTrack"></div>
+      </div>
+      <!-- 恢复原标题文字内容（蓝色框内的全部文字） -->
       <div class="hero-content">
         <h1 class="hero-title parallax-text">HI I'M JIMMY</h1>
-        <p class="hero-subtitle reveal-text">PORTFOLIO</p>
+        <p class="hero-subtitle">PORTFOLIO</p>
       </div>
+      <!-- 保留原有的滚动提示 -->
       <div class="scroll-indicator">Scroll to explore</div>
     </section>
 
@@ -286,15 +293,13 @@
       </div>
     </section>
 
-    <!-- 全新修改的 About Me 区域：左标题+右简历图片 -->
+    <!-- About Me 区域 -->
     <section id="resume" class="resume-section">
       <div class="resume-content reveal-up">
-        <!-- 左侧蓝色区域：艺术化双标题 -->
         <div class="resume-title-wrapper">
           <h1 class="resume-main-title">About Me</h1>
           <h2 class="resume-sub-title">个人简历</h2>
         </div>
-        <!-- 右侧绿色区域：简历图片 -->
         <div class="resume-image-wrapper">
           <img
             id="resumeImage"
@@ -319,7 +324,7 @@
       </div>
     </section>
 
-    <!-- 作品详情模态框：适配图片+视频+简历全屏 -->
+    <!-- 作品详情模态框 -->
     <div class="modal" id="projectModal">
       <div class="modal-content">
         <span class="close-modal">&times;</span>

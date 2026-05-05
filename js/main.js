@@ -1,32 +1,79 @@
-// 滚动动画触发
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("active");
-      }
-    });
-  },
-  { threshold: 0.1 },
-);
+// 核心修改：GridMotion倾斜网格无限滚动动画初始化 - 替换为30张指定命名图片
+document.addEventListener("DOMContentLoaded", () => {
+  const gridTrack = document.getElementById("gridMotionTrack");
+  const totalImages = 30; // 固定30张照片
+  const duplicateCount = 2; // 两组内容实现无缝循环无断层
 
-document.querySelectorAll(".reveal-text, .reveal-up").forEach((el) => {
-  observer.observe(el);
+  // 生成网格卡片 - 替换为指定命名的图片
+  function generateGridCards() {
+    if (!gridTrack) return;
+    gridTrack.innerHTML = "";
+
+    // 生成两组完全相同的内容，实现无缝滚动
+    for (let loop = 0; loop < duplicateCount; loop++) {
+      for (let i = 0; i < totalImages; i++) {
+        const card = document.createElement("div");
+        card.className = "grid-motion-card";
+        const img = document.createElement("img");
+        // 严格匹配命名规则：00000.png、00000(1).png、00000(2).png...00000(29).png
+        const imgFileName = i === 0 ? "00000.png" : `00000(${i}).png`;
+        img.src = `assets/images/${imgFileName}`;
+        img.alt = `Grid Image ${i + 1}`;
+        img.loading = "lazy"; // 懒加载优化性能
+        card.appendChild(img);
+        gridTrack.appendChild(card);
+      }
+    }
+  }
+
+  // 窗口resize适配（完全保留）
+  function handleGridResize() {
+    generateGridCards();
+  }
+
+  // 初始化GridMotion
+  generateGridCards();
+  window.addEventListener("resize", handleGridResize);
+
+  // 原有Hero副标题逻辑（完全保留）
+  const heroSubtitle = document.querySelector(".hero-subtitle");
+  if (heroSubtitle) {
+    heroSubtitle.classList.add("active");
+  }
 });
 
-// 作品分类筛选
+// Reveal 动画 IntersectionObserver 逻辑（完全保留）
+const observerOptions = {
+  root: null,
+  rootMargin: "0px",
+  threshold: 0.1,
+};
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("active");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, observerOptions);
+
+document.querySelectorAll(".reveal-text, .reveal-up").forEach((el) => {
+  revealObserver.observe(el);
+});
+
+// 作品分类筛选（完全保留）
 const filterButtons = document.querySelectorAll(".gallery-filters span");
-const galleryItems = document.querySelectorAll(".gallery-item");
+const galleryItemsAll = document.querySelectorAll(".gallery-item");
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    // 切换激活状态
     filterButtons.forEach((btn) => btn.classList.remove("active"));
     button.classList.add("active");
 
     const filter = button.getAttribute("data-filter");
 
-    galleryItems.forEach((item) => {
+    galleryItemsAll.forEach((item) => {
       if (filter === "all" || item.getAttribute("data-category") === filter) {
         item.style.display = "block";
       } else {
@@ -36,23 +83,20 @@ filterButtons.forEach((button) => {
   });
 });
 
-// 作品模态框逻辑
+// 作品模态框逻辑（完全保留）
 const modal = document.getElementById("projectModal");
 const modalMedia = document.getElementById("modalMedia");
 const modalTitle = document.getElementById("modalTitle");
 const modalDesc = document.getElementById("modalDesc");
 const closeModal = document.querySelector(".close-modal");
 
-// 关闭模态框
 closeModal.addEventListener("click", () => {
   modal.style.display = "none";
   modalMedia.innerHTML = "";
-  // 停止视频播放
   const videos = modalMedia.querySelectorAll("video");
   videos.forEach((video) => video.pause());
 });
 
-// 点击空白处关闭模态框
 window.addEventListener("click", (e) => {
   if (e.target === modal) {
     modal.style.display = "none";
@@ -62,8 +106,7 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// 作品卡片点击事件
-galleryItems.forEach((item) => {
+galleryItemsAll.forEach((item) => {
   item.addEventListener("click", () => {
     const title = item.querySelector("h3").textContent;
     const desc = item.getAttribute("data-desc");
@@ -74,7 +117,6 @@ galleryItems.forEach((item) => {
     modalDesc.textContent = desc;
     modalMedia.innerHTML = "";
 
-    // 处理视频
     if (video) {
       const videoEl = document.createElement("video");
       videoEl.src = video;
@@ -83,7 +125,6 @@ galleryItems.forEach((item) => {
       modalMedia.appendChild(videoEl);
     }
 
-    // 处理图片
     if (images) {
       const imageList = JSON.parse(images);
       imageList.forEach((imgSrc) => {
@@ -98,7 +139,7 @@ galleryItems.forEach((item) => {
   });
 });
 
-// 简历图片点击全屏查看逻辑
+// 简历图片点击全屏查看逻辑（完全保留）
 const resumeImage = document.getElementById("resumeImage");
 if (resumeImage) {
   resumeImage.addEventListener("click", () => {
@@ -116,7 +157,7 @@ if (resumeImage) {
   });
 }
 
-// 视差效果
+// 视差效果（完全保留）
 window.addEventListener("scroll", () => {
   const scrollY = window.scrollY;
   const parallaxText = document.querySelector(".parallax-text");
